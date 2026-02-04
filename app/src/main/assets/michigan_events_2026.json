@@ -1,0 +1,162 @@
+[
+  {
+    "eventCode": "2025mibkn",
+    "eventName": "Brooklyn Event 2025",
+    "date": "2025-03-01"
+  },
+  {
+    "eventCode": "2026milak",
+    "eventName": "Lakeview Event",
+    "date": "2026-03-05"
+  },
+  {
+    "eventCode": "2026miche",
+    "eventName": "Chelsea Event",
+    "date": "2026-03-06"
+  },
+  {
+    "eventCode": "2026midtr",
+    "eventName": "Wayne State Event",
+    "date": "2026-03-12"
+  },
+  {
+    "eventCode": "2026mimid",
+    "eventName": "Midland Event",
+    "date": "2026-03-12"
+  },
+  {
+    "eventCode": "2026mimil",
+    "eventName": "Milford Event",
+    "date": "2026-03-12"
+  },
+  {
+    "eventCode": "2026mibro",
+    "eventName": "Woodhaven Event",
+    "date": "2026-03-13"
+  },
+  {
+    "eventCode": "2026milac",
+    "eventName": "Lake City Event",
+    "date": "2026-03-13"
+  },
+  {
+    "eventCode": "2026mimar",
+    "eventName": "Marysville Event",
+    "date": "2026-03-13"
+  },
+  {
+    "eventCode": "2026mibel",
+    "eventName": "Belleville Event",
+    "date": "2026-03-19"
+  },
+  {
+    "eventCode": "2026mimus",
+    "eventName": "Muskegon Event",
+    "date": "2026-03-19"
+  },
+  {
+    "eventCode": "2026mitvc",
+    "eventName": "Traverse City Event",
+    "date": "2026-03-19"
+  },
+  {
+    "eventCode": "2026miber",
+    "eventName": "Berrien Springs Event",
+    "date": "2026-03-20"
+  },
+  {
+    "eventCode": "2026mibkn",
+    "eventName": "Jackson at Columbia Event",
+    "date": "2026-03-20"
+  },
+  {
+    "eventCode": "2026mifli",
+    "eventName": "Kearsley Event",
+    "date": "2026-03-20"
+  },
+  {
+    "eventCode": "2026milsu",
+    "eventName": "LSSU Event",
+    "date": "2026-03-26"
+  },
+  {
+    "eventCode": "2026miwmi",
+    "eventName": "West Michigan Event",
+    "date": "2026-03-26"
+  },
+  {
+    "eventCode": "2026mibat",
+    "eventName": "Battle Creek Event",
+    "date": "2026-03-27"
+  },
+  {
+    "eventCode": "2026mimas",
+    "eventName": "Mason Event",
+    "date": "2026-03-27"
+  },
+  {
+    "eventCode": "2026misal",
+    "eventName": "Saline Event",
+    "date": "2026-03-27"
+  },
+  {
+    "eventCode": "2026mitry",
+    "eventName": "Troy Event",
+    "date": "2026-03-27"
+  },
+  {
+    "eventCode": "2026miliv",
+    "eventName": "Livonia Event",
+    "date": "2026-04-02"
+  },
+  {
+    "eventCode": "2026mibig",
+    "eventName": "Ferris State Event",
+    "date": "2026-04-09"
+  },
+  {
+    "eventCode": "2026miesc",
+    "eventName": "Escanaba Event",
+    "date": "2026-04-09"
+  },
+  {
+    "eventCode": "2026miken",
+    "eventName": "Kentwood Event",
+    "date": "2026-04-09"
+  },
+  {
+    "eventCode": "2026midet",
+    "eventName": "Renaissance Event",
+    "date": "2026-04-10"
+  },
+  {
+    "eventCode": "2026mifen",
+    "eventName": "Fenton Event",
+    "date": "2026-04-10"
+  },
+  {
+    "eventCode": "2026micmp",
+    "eventName": "Michigan State Championship",
+    "date": "2026-04-16"
+  },
+  {
+    "eventCode": "2026micmp1",
+    "eventName": "Michigan State Championship - DTE Energy Foundation Division",
+    "date": "2026-04-16"
+  },
+  {
+    "eventCode": "2026micmp2",
+    "eventName": "Michigan State Championship - Hemlock Semiconductor Division",
+    "date": "2026-04-16"
+  },
+  {
+    "eventCode": "2026micmp3",
+    "eventName": "Michigan State Championship - Consumers Energy Division",
+    "date": "2026-04-16"
+  },
+  {
+    "eventCode": "2026micmp4",
+    "eventName": "Michigan State Championship - Aptiv Division",
+    "date": "2026-04-16"
+  }
+]
