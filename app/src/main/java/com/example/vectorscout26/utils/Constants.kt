@@ -11,7 +11,7 @@ object Constants {
     val START_LOCATIONS = listOf("L1", "L2", "L3", "L3a", "L3b", "L4", "L5")
 
     // Shoot Locations (shoot zones)
-    val SHOOT_LOCATIONS = listOf("FLZ", "CLZ", "MZ", "PZ", "CRZ", "FRZ")
+    val SHOOT_LOCATIONS = listOf("H", "R1", "R2", "L1", "L2")
 
     // Field Zones (5x5 grid) - used for shoot, load, ferry locations
     val FIELD_ZONES = listOf(
@@ -37,6 +37,28 @@ object Constants {
 
     // Damaged options
     val DAMAGED_COMPONENTS = listOf("Drivetrain", "Intake", "Shooter", "Climber")
+
+    // Pit Scouting - Drivetrain types
+    val DRIVETRAIN_TYPES = listOf("Swerve", "Tank", "Mecanum", "Other")
+
+    // Pit Scouting - Preferred roles
+    val PREFERRED_ROLES = listOf("Score", "Ferry", "Defense")
+
+    // Pit Scouting - Preferred paths
+    val PREFERRED_PATHS = listOf("Trench", "Bump", "Both")
+
+    // Pit Scouting - Auto path start positions (no L prefix)
+    val PIT_START_POSITIONS = listOf("1", "2", "3", "3a", "3b", "4", "5")
+
+    // Pit Scouting - Auto path actions
+    val PATH_ACTIONS = listOf("Load", "Score", "Ferry", "Move", "Climb")
+
+    // Pit Scouting - Location options by action
+    val LOAD_LOCATIONS = listOf("Neutral", "Depot", "Outpost", "Alliance")
+    val PIT_SCORE_LOCATIONS = listOf("H", "R1", "R2", "L1", "L2")
+    val PIT_FERRY_LOCATIONS = listOf("Shoot Alliance", "Dump Alliance", "Dump Outpost")
+    val MOVE_LOCATIONS = listOf("Neutral", "Alliance", "Depot", "Outpost")
+    val PIT_CLIMB_LOCATIONS = listOf("L1")
 }
 
 object FieldZones {

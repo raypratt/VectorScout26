@@ -9,5 +9,8 @@ sealed class Screen(val route: String) {
     object QRCode : Screen("qr_code/{matchScoutId}") {
         fun createRoute(matchScoutId: Long) = "qr_code/$matchScoutId"
     }
-    object PitScouting : Screen("pit_scouting")  // For future Phase 2
+    object PitScouting : Screen("pit_scouting")
+    object PitQRCode : Screen("pit_qr_code/{pitScoutId}") {
+        fun createRoute(pitScoutId: Long) = "pit_qr_code/$pitScoutId"
+    }
 }

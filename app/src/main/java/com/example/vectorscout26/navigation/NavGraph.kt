@@ -15,20 +15,27 @@ import com.example.vectorscout26.data.database.ScoutDatabase
 import com.example.vectorscout26.data.model.ActionRecord
 import com.example.vectorscout26.data.model.ActionType
 import com.example.vectorscout26.data.model.MatchPhase
+import com.example.vectorscout26.data.repository.PitScoutRepository
 import com.example.vectorscout26.data.repository.ScoutRepository
 import com.example.vectorscout26.ui.home.HomeScreen
 import com.example.vectorscout26.ui.match.MatchScoutingScreen
 import com.example.vectorscout26.ui.match.MatchScoutingViewModel
 import com.example.vectorscout26.ui.match.MatchScoutingViewModelFactory
 import com.example.vectorscout26.ui.match.action.ActionDetailScreen
+import com.example.vectorscout26.ui.pit.PitScoutingScreen
+import com.example.vectorscout26.ui.pit.PitScoutingViewModel
+import com.example.vectorscout26.ui.pit.PitScoutingViewModelFactory
 import com.example.vectorscout26.ui.qrcode.QRCodeScreen
+import com.example.vectorscout26.ui.qrcode.PitQRCodeScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
     val context = LocalContext.current
     val database = remember { ScoutDatabase.getDatabase(context) }
-    val repository = remember { ScoutRepository(database.matchScoutDao()) }
-    val viewModelFactory = remember { MatchScoutingViewModelFactory(repository) }
+    val matchRepository = remember { ScoutRepository(database.matchScoutDao()) }
+    val pitRepository = remember { PitScoutRepository(database.pitScoutDao()) }
+    val matchViewModelFactory = remember { MatchScoutingViewModelFactory(matchRepository) }
+    val pitViewModelFactory = remember { PitScoutingViewModelFactory(pitRepository) }
 
     NavHost(
         navController = navController,
@@ -40,7 +47,7 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigate("match_flow")
                 },
                 onPitScoutingClick = {
-                    navController.navigate(Screen.PitScouting.route)
+                    navController.navigate("pit_flow")
                 }
             )
         }
@@ -54,7 +61,7 @@ fun NavGraph(navController: NavHostController) {
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("match_flow")
                 }
-                val viewModel: MatchScoutingViewModel = viewModel(parentEntry, factory = viewModelFactory)
+                val viewModel: MatchScoutingViewModel = viewModel(parentEntry, factory = matchViewModelFactory)
 
                 MatchScoutingScreen(
                     viewModel = viewModel,
@@ -82,7 +89,7 @@ fun NavGraph(navController: NavHostController) {
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("match_flow")
                 }
-                val viewModel: MatchScoutingViewModel = viewModel(parentEntry, factory = viewModelFactory)
+                val viewModel: MatchScoutingViewModel = viewModel(parentEntry, factory = matchViewModelFactory)
                 val state = viewModel.state.collectAsState()
 
                 val phase = backStackEntry.arguments?.getString("phase") ?: ""
@@ -145,8 +152,53 @@ fun NavGraph(navController: NavHostController) {
             }
         }
 
-        composable(Screen.PitScouting.route) {
-            // Placeholder for Phase 2
+        // Nested navigation for pit scouting flow to share ViewModel
+        navigation(
+            startDestination = Screen.PitScouting.route,
+            route = "pit_flow"
+        ) {
+            composable(Screen.PitScouting.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("pit_flow")
+                }
+                val viewModel: PitScoutingViewModel = viewModel(parentEntry, factory = pitViewModelFactory)
+
+                PitScoutingScreen(
+                    viewModel = viewModel,
+                    onSubmitSuccess = { pitScoutId ->
+                        navController.navigate(Screen.PitQRCode.createRoute(pitScoutId))
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.PitQRCode.route,
+                arguments = listOf(
+                    navArgument("pitScoutId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("pit_flow")
+                }
+                val viewModel: PitScoutingViewModel = viewModel(parentEntry, factory = pitViewModelFactory)
+                val pitScoutId = backStackEntry.arguments?.getLong("pitScoutId") ?: 0L
+
+                PitQRCodeScreen(
+                    pitScoutId = pitScoutId,
+                    onNewPitScout = {
+                        viewModel.resetStateForNewScout()
+                        navController.popBackStack(Screen.PitScouting.route, inclusive = false)
+                    },
+                    onHome = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
     }
 }
