@@ -1,7 +1,8 @@
 /**
  * VectorScout26 QR Code Data Processor
- * Auto-processes scanned QR codes into Match Summary and Action Details tables
- * Each action is recorded as a separate row for location tracking
+ * Auto-processes scanned QR codes into separate tables:
+ * - Match scouting: MatchSummary + ActionDetails
+ * - Pit scouting: PitScout + AutonPath
  *
  * Setup:
  * 1. In Google Sheets, go to Extensions > Apps Script
@@ -12,6 +13,8 @@
 
 const MATCH_SHEET_NAME = "MatchSummary";
 const ACTION_SHEET_NAME = "ActionDetails";
+const PIT_SHEET_NAME = "PitScout";
+const AUTON_PATH_SHEET_NAME = "AutonPath";
 const INPUT_SHEET_NAME = "QRInput";
 const INPUT_COLUMN = 1; // Column A
 
@@ -39,9 +42,23 @@ function onEdit(e) {
 }
 
 /**
- * Process a QR code JSON string and split into two tables
+ * Process a QR code JSON string - routes to match or pit processor based on type
  */
 function processQRCode(jsonString) {
+  const data = JSON.parse(jsonString);
+
+  // Route based on type
+  if (data.type === "pit") {
+    processPitQRCode(data);
+  } else {
+    processMatchQRCode(data);
+  }
+}
+
+/**
+ * Process match scouting QR code into MatchSummary and ActionDetails
+ */
+function processMatchQRCode(data) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const matchSheet = ss.getSheetByName(MATCH_SHEET_NAME);
   const actionSheet = ss.getSheetByName(ACTION_SHEET_NAME);
@@ -49,8 +66,6 @@ function processQRCode(jsonString) {
   if (!matchSheet || !actionSheet) {
     throw new Error("Missing sheets. Run setupSheets() first.");
   }
-
-  const data = JSON.parse(jsonString);
 
   // Check for duplicate (same event + match + team)
   const matchData = matchSheet.getDataRange().getValues();
@@ -107,6 +122,49 @@ function processQRCode(jsonString) {
   });
 }
 
+/**
+ * Process pit scouting QR code into PitScout and AutonPath tables
+ */
+function processPitQRCode(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const pitSheet = ss.getSheetByName(PIT_SHEET_NAME);
+  const pathSheet = ss.getSheetByName(AUTON_PATH_SHEET_NAME);
+
+  if (!pitSheet || !pathSheet) {
+    throw new Error("Missing pit sheets. Run setupSheets() first.");
+  }
+
+  const pit = data.pit;
+  const paths = data.paths || [];
+
+  // Check for duplicate (same event + team)
+  const pitData = pitSheet.getDataRange().getValues();
+  for (let i = 1; i < pitData.length; i++) {
+    if (pitData[i][0] === pit.e && pitData[i][1] === pit.t) {
+      throw new Error("Duplicate pit scout: " + pit.e + " Team " + pit.t);
+    }
+  }
+
+  // Write to PitScout table
+  pitSheet.appendRow([
+    pit.e,                     // event
+    pit.t,                     // teamNumber
+    pit.dt,                    // drivetrainType
+    pit.pr,                    // preferredRole
+    pit.pp                     // preferredPath
+  ]);
+
+  // Write to AutonPath table - one row per path
+  paths.forEach((path) => {
+    pathSheet.appendRow([
+      pit.e,                   // event (for filtering)
+      path.t,                  // teamNumber
+      path.n,                  // pathName (A1, A2, etc.)
+      path.p                   // pathText (e.g., "3 > Load Depot > Score H")
+    ]);
+  });
+}
+
 function parseQualData(qdString) {
   try {
     return JSON.parse(qdString);
@@ -141,6 +199,21 @@ function setupSheets() {
     "FoulType",
     "DamagedComponents"
   ]]).setFontWeight("bold");
+
+  // PitScout sheet - one row per team
+  let pitSheet = ss.getSheetByName(PIT_SHEET_NAME);
+  if (!pitSheet) pitSheet = ss.insertSheet(PIT_SHEET_NAME);
+  pitSheet.getRange(1, 1, 1, 5).setValues([[
+    "Event", "Team", "Drivetrain", "PreferredRole", "PreferredPath"
+  ]]).setFontWeight("bold");
+
+  // AutonPath sheet - one row per auto path
+  let pathSheet = ss.getSheetByName(AUTON_PATH_SHEET_NAME);
+  if (!pathSheet) pathSheet = ss.insertSheet(AUTON_PATH_SHEET_NAME);
+  pathSheet.getRange(1, 1, 1, 4).setValues([[
+    "Event", "Team", "PathName", "PathText"
+  ]]).setFontWeight("bold");
+  pathSheet.setColumnWidth(4, 400); // Make PathText column wider
 
   // QR Input sheet
   let inputSheet = ss.getSheetByName(INPUT_SHEET_NAME);

@@ -34,7 +34,7 @@ import java.io.File
 @Composable
 fun PitScoutingScreen(
     viewModel: PitScoutingViewModel,
-    onSubmitSuccess: (Long) -> Unit,
+    onSubmitSuccess: (Long, String) -> Unit,
     onBackClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -326,8 +326,9 @@ fun PitScoutingScreen(
             // Submit button
             Button(
                 onClick = {
+                    val eventCode = state.eventCode
                     viewModel.submitPitScout { id ->
-                        onSubmitSuccess(id)
+                        onSubmitSuccess(id, eventCode)
                     }
                 },
                 modifier = Modifier

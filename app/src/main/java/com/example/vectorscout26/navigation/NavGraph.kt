@@ -165,8 +165,8 @@ fun NavGraph(navController: NavHostController) {
 
                 PitScoutingScreen(
                     viewModel = viewModel,
-                    onSubmitSuccess = { pitScoutId ->
-                        navController.navigate(Screen.PitQRCode.createRoute(pitScoutId))
+                    onSubmitSuccess = { pitScoutId, eventCode ->
+                        navController.navigate(Screen.PitQRCode.createRoute(pitScoutId, eventCode))
                     },
                     onBackClick = {
                         navController.popBackStack()
@@ -177,7 +177,8 @@ fun NavGraph(navController: NavHostController) {
             composable(
                 route = Screen.PitQRCode.route,
                 arguments = listOf(
-                    navArgument("pitScoutId") { type = NavType.LongType }
+                    navArgument("pitScoutId") { type = NavType.LongType },
+                    navArgument("eventCode") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
@@ -185,9 +186,11 @@ fun NavGraph(navController: NavHostController) {
                 }
                 val viewModel: PitScoutingViewModel = viewModel(parentEntry, factory = pitViewModelFactory)
                 val pitScoutId = backStackEntry.arguments?.getLong("pitScoutId") ?: 0L
+                val eventCode = backStackEntry.arguments?.getString("eventCode") ?: ""
 
                 PitQRCodeScreen(
                     pitScoutId = pitScoutId,
+                    eventCode = eventCode,
                     onNewPitScout = {
                         viewModel.resetStateForNewScout()
                         navController.popBackStack(Screen.PitScouting.route, inclusive = false)

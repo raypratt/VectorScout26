@@ -43,6 +43,7 @@ import java.io.FileOutputStream
 @Composable
 fun PitQRCodeScreen(
     pitScoutId: Long,
+    eventCode: String,
     onNewPitScout: () -> Unit,
     onHome: () -> Unit
 ) {
@@ -62,7 +63,7 @@ fun PitQRCodeScreen(
         scope.launch {
             val data = pitData
             if (data != null) {
-                val pitLabel = "Pit_${data.teamNumber}"
+                val pitLabel = "${eventCode}_Pit_${data.teamNumber}"
                 val filename = "$pitLabel.png"
 
                 val savedPath = savePitQRCodeImage(context, jsonContent, pitLabel, filename, isGranted)
@@ -196,7 +197,7 @@ fun PitQRCodeScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     pitData?.let { data ->
-                        val pitLabel = "Pit_${data.teamNumber}"
+                        val pitLabel = "${eventCode}_Pit_${data.teamNumber}"
                         Card(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -248,7 +249,7 @@ fun PitQRCodeScreen(
                         scope.launch {
                             val data = pitData
                             if (data != null) {
-                                val pitLabel = "Pit_${data.teamNumber}"
+                                val pitLabel = "${eventCode}_Pit_${data.teamNumber}"
                                 val filename = "$pitLabel.png"
 
                                 val savedPath = savePitQRCodeImage(context, jsonContent, pitLabel, filename, hasStoragePermission())
