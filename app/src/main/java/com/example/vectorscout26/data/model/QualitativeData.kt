@@ -16,8 +16,8 @@ data class ShootData(
 ) : QualitativeData
 
 data class FerryData(
-    val ferryType: String,  // "Shoot", "Dump"
-    val ferryDelivery: String  // Zone from map
+    val ferryType: String,  // "Shoot", "Dump", "Bulldoze"
+    val ferryDelivery: String  // Zone from map (empty for Bulldoze)
 ) : QualitativeData
 
 data class ClimbData(

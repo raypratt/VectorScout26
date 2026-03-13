@@ -18,6 +18,7 @@ fun TeleopSection(
     incapacitatedCount: Int,
     tippedCount: Int,
     onActionClick: (ActionType) -> Unit,
+    onDeleteAction: (ActionType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -43,6 +44,7 @@ fun TeleopSection(
                 label = "Load",
                 count = loadCount,
                 onClick = { onActionClick(ActionType.Load) },
+                onDelete = { onDeleteAction(ActionType.Load) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionPurple)
             )
 
@@ -52,6 +54,7 @@ fun TeleopSection(
                 label = "Shoot",
                 count = shootCount,
                 onClick = { onActionClick(ActionType.Shoot) },
+                onDelete = { onDeleteAction(ActionType.Shoot) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionOrange)
             )
 
@@ -61,6 +64,7 @@ fun TeleopSection(
                 label = "Ferry",
                 count = ferryCount,
                 onClick = { onActionClick(ActionType.Ferry) },
+                onDelete = { onDeleteAction(ActionType.Ferry) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionPurple)
             )
 
@@ -70,35 +74,20 @@ fun TeleopSection(
                 label = "Defense",
                 count = defenseCount,
                 onClick = { onActionClick(ActionType.Defense) },
+                onDelete = { onDeleteAction(ActionType.Defense) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionOrange)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                ActionButton(
-                    label = "Foul",
-                    count = 0,
-                    onClick = { onActionClick(ActionType.Foul) },
-                    modifier = Modifier.weight(1f),
-                    containerColor = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
+            ActionButton(
+                label = "Damaged",
+                count = 0,
+                onClick = { onActionClick(ActionType.Damaged) },
+                containerColor = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
                 )
-
-                ActionButton(
-                    label = "Damaged",
-                    count = 0,
-                    onClick = { onActionClick(ActionType.Damaged) },
-                    modifier = Modifier.weight(1f),
-                    containerColor = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -110,6 +99,7 @@ fun TeleopSection(
                     label = "Incapacitated",
                     count = incapacitatedCount,
                     onClick = { onActionClick(ActionType.Incapacitated) },
+                    onDelete = { onDeleteAction(ActionType.Incapacitated) },
                     modifier = Modifier.weight(1f),
                     containerColor = ButtonDefaults.buttonColors(containerColor = ActionPurple)
                 )
@@ -118,6 +108,7 @@ fun TeleopSection(
                     label = "Tipped",
                     count = tippedCount,
                     onClick = { onActionClick(ActionType.Tipped) },
+                    onDelete = { onDeleteAction(ActionType.Tipped) },
                     modifier = Modifier.weight(1f),
                     containerColor = ButtonDefaults.buttonColors(containerColor = ActionOrange)
                 )

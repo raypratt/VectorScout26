@@ -17,6 +17,7 @@ fun AutonSection(
     ferryCount: Int,
     climbCount: Int,
     onActionClick: (ActionType) -> Unit,
+    onDeleteAction: (ActionType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -42,6 +43,7 @@ fun AutonSection(
                 label = "Load",
                 count = loadCount,
                 onClick = { onActionClick(ActionType.Load) },
+                onDelete = { onDeleteAction(ActionType.Load) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionPurple)
             )
 
@@ -51,6 +53,7 @@ fun AutonSection(
                 label = "Shoot",
                 count = shootCount,
                 onClick = { onActionClick(ActionType.Shoot) },
+                onDelete = { onDeleteAction(ActionType.Shoot) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionOrange)
             )
 
@@ -60,6 +63,7 @@ fun AutonSection(
                 label = "Ferry",
                 count = ferryCount,
                 onClick = { onActionClick(ActionType.Ferry) },
+                onDelete = { onDeleteAction(ActionType.Ferry) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionPurple)
             )
 
@@ -69,18 +73,8 @@ fun AutonSection(
                 label = "Climb",
                 count = climbCount,
                 onClick = { onActionClick(ActionType.AutonClimb) },
+                onDelete = { onDeleteAction(ActionType.AutonClimb) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionOrange)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            ActionButton(
-                label = "Foul",
-                count = 0,
-                onClick = { onActionClick(ActionType.Foul) },
-                containerColor = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
             )
         }
     }

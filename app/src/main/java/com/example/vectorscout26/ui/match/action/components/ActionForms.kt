@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.vectorscout26.data.model.*
 import com.example.vectorscout26.ui.match.components.FerryLocationSelector
 import com.example.vectorscout26.ui.match.components.FieldMapSelector
@@ -82,31 +83,52 @@ fun FerryForm(
     var ferryDelivery by remember { mutableStateOf("") }
 
     LaunchedEffect(ferryType, ferryDelivery) {
-        if (ferryType.isNotEmpty() && ferryDelivery.isNotEmpty()) {
-            onDataChange(FerryData(ferryType = ferryType, ferryDelivery = ferryDelivery))
+        val bulldoze = ferryType == "Bulldoze"
+        if (ferryType.isNotEmpty() && (bulldoze || ferryDelivery.isNotEmpty())) {
+            onDataChange(FerryData(ferryType = ferryType, ferryDelivery = if (bulldoze) "" else ferryDelivery))
         }
     }
 
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Ferry Type", style = MaterialTheme.typography.titleMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Constants.FERRY_TYPES.forEach { type ->
-                FilterChip(
-                    selected = ferryType == type,
-                    onClick = { ferryType = type },
-                    label = { Text(type) },
-                    modifier = Modifier.weight(1f)
-                )
+                if (ferryType == type) {
+                    Button(
+                        onClick = {
+                            ferryType = type
+                            if (type == "Bulldoze") ferryDelivery = ""
+                        },
+                        modifier = Modifier.weight(1f).height(72.dp)
+                    ) {
+                        Text(type, fontSize = 20.sp)
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = {
+                            ferryType = type
+                            if (type == "Bulldoze") ferryDelivery = ""
+                        },
+                        modifier = Modifier.weight(1f).height(72.dp)
+                    ) {
+                        Text(type, fontSize = 20.sp)
+                    }
+                }
             }
         }
 
-        Text("Ferry Delivery", style = MaterialTheme.typography.titleMedium)
-        FerryLocationSelector(
-            selectedLocation = ferryDelivery,
-            onLocationSelected = { ferryDelivery = it },
-            robotDesignation = robotDesignation,
-            isBlueRight = isBlueRight
-        )
+        if (ferryType != "Bulldoze") {
+            Text("Ferry Delivery", style = MaterialTheme.typography.titleMedium)
+            FerryLocationSelector(
+                selectedLocation = ferryDelivery,
+                onLocationSelected = { ferryDelivery = it },
+                robotDesignation = robotDesignation,
+                isBlueRight = isBlueRight
+            )
+        }
     }
 }
 

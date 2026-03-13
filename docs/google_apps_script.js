@@ -50,6 +50,8 @@ function processQRCode(jsonString) {
   // Route based on type
   if (data.type === "pit") {
     processPitQRCode(data);
+  } else if (data.type === "foul") {
+    processFoulQRCode(data);
   } else {
     processMatchQRCode(data);
   }
@@ -165,6 +167,51 @@ function processPitQRCode(data) {
   });
 }
 
+/**
+ * Process foul scouting QR code into ActionDetails table.
+ * One row per individual foul action (5 = minor, 15 = major).
+ */
+function processFoulQRCode(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const actionSheet = ss.getSheetByName(ACTION_SHEET_NAME);
+
+  if (!actionSheet) {
+    throw new Error("Missing ActionDetails sheet. Run setupSheets() first.");
+  }
+
+  // Check for duplicate (same event + match already in ActionDetails as a Foul row)
+  const existingData = actionSheet.getDataRange().getValues();
+  for (let i = 1; i < existingData.length; i++) {
+    if (existingData[i][0] === data.e &&
+        existingData[i][1] === data.m &&
+        existingData[i][5] === "Foul") {
+      throw new Error("Duplicate foul scout: " + data.e + " M" + data.m);
+    }
+  }
+
+  const actions = data.actions || [];
+  actions.forEach((action, index) => {
+      actionSheet.appendRow([
+      data.e,         // event
+      data.m,         // matchNumber
+      action.t,       // teamNumber
+      index + 1,      // actionNumber
+      "",             // phase
+      "Foul",         // actionType
+      0,              // durationMs
+      "",             // shootLocation
+      "",             // loadLocation
+      "",             // ferryType
+      "",             // ferryDelivery
+      "",             // climbResult
+      "",             // defenseTypes
+      "",             // targetRobot
+      action.pts,     // foulPoints (5 = minor, 15 = major)
+      ""              // damagedComponents
+    ]);
+  });
+}
+
 function parseQualData(qdString) {
   try {
     return JSON.parse(qdString);
@@ -196,7 +243,7 @@ function setupSheets() {
     "FerryType", "FerryDelivery",
     "ClimbResult",
     "DefenseTypes", "TargetRobot",
-    "FoulType",
+    "FoulPoints",
     "DamagedComponents"
   ]]).setFontWeight("bold");
 
@@ -230,5 +277,92 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu("VectorScout")
     .addItem("Setup Sheets", "setupSheets")
+    .addItem("Reprocess Pending QR Codes", "reprocessPending")
     .addToUi();
+}
+
+Add
+
+function generateActionDetails() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName("ActionDetails");
+  if (!sheet) {
+    sheet = ss.insertSheet("ActionDetails");
+  } else {
+    sheet.clearContents();
+  }
+
+  const headers = [
+    "Event", "Match", "Team", "Phase", "ActionType", "DurationMs",
+    "ShootLocation", "LoadLocation", "FerryType", "FerryDelivery",
+    "ClimbResult", "DefenseTypes", "TargetRobot", "FoulType", "DamagedComponents"
+  ];
+  sheet.appendRow(headers);
+
+  const EVENT = "2025misjo";
+  const MATCH = 1;
+  const TEAMS = [7256, 2611, 205, 8767, 4956, 567];
+
+  const ALLIANCE_A = [7256, 2611, 205];
+  const ALLIANCE_B = [8767, 4956, 567];
+
+  const SHOOT_LOCATIONS  = ["Hub", "R1", "R2", "L1", "L2"];
+  const LOAD_LOCATIONS   = ["Depot", "Outpost", "Alliance", "Neutral", "Opponent"];
+  const FERRY_TYPES      = ["Dump", "Shoot"];
+  const FERRY_DELIVERIES = ["Neutral", "Alliance", "Outpost"];
+  const DEFENSE_TYPES    = ["Block", "Pin", "Altered Shot"];
+
+  const climbUsed = {};
+  TEAMS.forEach(t => climbUsed[t] = false);
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  const allRows = [];
+  const rowsPerTeam = Math.floor(200 / TEAMS.length);
+  const extras = 200 - rowsPerTeam * TEAMS.length;
+
+  TEAMS.forEach((team, idx) => {
+    const count = rowsPerTeam + (idx < extras ? 1 : 0);
+    for (let i = 0; i < count; i++) {
+      const phase = Math.random() < 0.10 ? "AUTON" : "TELEOP";
+      let actions;
+      if (phase === "AUTON") {
+        actions = climbUsed[team] ? ["Shoot", "Load"] : ["Shoot", "Load", "Climb"];
+      } else {
+        actions = climbUsed[team] ? ["Shoot", "Load", "Ferry", "Defense"] : ["Shoot", "Load", "Ferry", "Defense", "Climb"];
+      }
+      const action = pick(actions);
+      if (action === "Climb") climbUsed[team] = true;
+
+      const duration      = randInt(1000, 20000);
+      const shootLocation = action === "Shoot"   ? pick(SHOOT_LOCATIONS)  : "";
+      const loadLocation  = action === "Load"    ? pick(LOAD_LOCATIONS)   : "";
+      const ferryType     = action === "Ferry"   ? pick(FERRY_TYPES)      : "";
+      const ferryDelivery = action === "Ferry"   ? pick(FERRY_DELIVERIES) : "";
+      const defenseTypes  = action === "Defense" ? pick(DEFENSE_TYPES)    : "";
+      let climbResult = "";
+      if (action === "Climb") {
+        climbResult = phase === "AUTON" ? pick(["L1", "Fail"]) : pick(["L1", "L2", "L3", "Fail"]);
+      }
+      let targetRobot = "";
+      if (action === "Defense") {
+        const opposing = ALLIANCE_A.includes(team) ? ALLIANCE_B : ALLIANCE_A;
+        targetRobot = pick(opposing);
+      }
+      allRows.push([
+        EVENT, MATCH, team, phase, action, duration,
+        shootLocation, loadLocation, ferryType, ferryDelivery,
+        climbResult, defenseTypes, targetRobot, "", ""
+      ]);
+    }
+  });
+
+  for (let i = allRows.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allRows[i], allRows[j]] = [allRows[j], allRows[i]];
+  }
+
+  sheet.getRange(2, 1, allRows.length, headers.length).setValues(allRows);
+  SpreadsheetApp.getUi().alert(`Done! ${allRows.length} rows written to ActionDetails.`);
 }

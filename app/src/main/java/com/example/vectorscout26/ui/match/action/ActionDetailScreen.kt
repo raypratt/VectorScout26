@@ -33,6 +33,21 @@ fun ActionDetailScreen(
     var qualitativeData by remember { mutableStateOf<QualitativeData?>(null) }
     var isDataComplete by remember { mutableStateOf(action?.hasCounter == false) } // Foul/Damaged don't need data
 
+    // Auto-complete for single-selection actions (Load, Shoot, Ferry, Climb)
+    val shouldAutoComplete = action == ActionType.Load
+        || action == ActionType.Shoot
+        || action == ActionType.Ferry
+        || action == ActionType.AutonClimb
+        || action == ActionType.EndGameClimb
+
+    LaunchedEffect(isDataComplete) {
+        if (isDataComplete && shouldAutoComplete) {
+            actionViewModel.stopTimer()
+            val elapsedMs = actionViewModel.getElapsedTime()
+            onComplete(qualitativeData, elapsedMs)
+        }
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -142,7 +157,8 @@ fun ActionDetailScreen(
                         actionViewModel.stopTimer()
                         onCancel()
                     },
-                    modifier = Modifier.weight(1f).height(84.dp),
+                    modifier = if (shouldAutoComplete) Modifier.fillMaxWidth().height(84.dp)
+                               else Modifier.weight(1f).height(84.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     )
@@ -150,20 +166,22 @@ fun ActionDetailScreen(
                     Text("Cancel", fontSize = 24.sp)
                 }
 
-                Button(
-                    onClick = {
-                        actionViewModel.stopTimer()
-                        val elapsedMs = actionViewModel.getElapsedTime()
-                        onComplete(qualitativeData, elapsedMs)
-                    },
-                    modifier = Modifier.weight(1f).height(84.dp),
-                    enabled = isDataComplete
-                ) {
-                    val buttonText = when {
-                        action?.hasTimer == false -> "Done"
-                        else -> "End $actionType"
+                if (!shouldAutoComplete) {
+                    Button(
+                        onClick = {
+                            actionViewModel.stopTimer()
+                            val elapsedMs = actionViewModel.getElapsedTime()
+                            onComplete(qualitativeData, elapsedMs)
+                        },
+                        modifier = Modifier.weight(1f).height(84.dp),
+                        enabled = isDataComplete
+                    ) {
+                        val buttonText = when {
+                            action?.hasTimer == false -> "Done"
+                            else -> "End $actionType"
+                        }
+                        Text(buttonText, fontSize = 24.sp)
                     }
-                    Text(buttonText, fontSize = 24.sp)
                 }
             }
         }

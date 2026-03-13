@@ -11,12 +11,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class PitScoutState(
-    val event: String = "",
     val eventCode: String = "",
     val teamNumber: String = "",
     val drivetrainType: String = "",
     val preferredRole: String = "",
     val preferredPath: String = "",
+    val hopperCapacity: String = "",
     val photoPath: String? = null,
     val autoPaths: List<AutoPathState> = listOf(AutoPathState()),
     val currentPathIndex: Int = 0,
@@ -40,8 +40,8 @@ class PitScoutingViewModel(
     val state: StateFlow<PitScoutState> = _state.asStateFlow()
 
     // Update event
-    fun updateEvent(event: String, eventCode: String) {
-        _state.value = _state.value.copy(event = event, eventCode = eventCode)
+    fun updateEvent(eventCode: String) {
+        _state.value = _state.value.copy(eventCode = eventCode)
     }
 
     // Update team number
@@ -62,6 +62,11 @@ class PitScoutingViewModel(
     // Update preferred path
     fun updatePreferredPath(path: String) {
         _state.value = _state.value.copy(preferredPath = path)
+    }
+
+    // Update hopper capacity
+    fun updateHopperCapacity(capacity: String) {
+        _state.value = _state.value.copy(hopperCapacity = capacity)
     }
 
     // Update photo path
@@ -216,7 +221,7 @@ class PitScoutingViewModel(
         val errors = mutableListOf<String>()
 
         // Validation
-        if (currentState.event.isBlank()) {
+        if (currentState.eventCode.isBlank()) {
             errors.add("Event is required")
         }
         if (currentState.teamNumber.isBlank()) {
@@ -260,11 +265,12 @@ class PitScoutingViewModel(
                     }
 
                 val pitScoutData = PitScoutData(
-                    event = currentState.event,
+                    event = currentState.eventCode,
                     teamNumber = teamNum,
                     drivetrainType = currentState.drivetrainType,
                     preferredRole = currentState.preferredRole,
                     preferredPath = currentState.preferredPath,
+                    hopperCapacity = currentState.hopperCapacity.toIntOrNull() ?: 0,
                     photoPath = currentState.photoPath,
                     autoPaths = autoPaths
                 )
@@ -288,12 +294,8 @@ class PitScoutingViewModel(
 
     // Reset state for new pit scout (preserves event selection)
     fun resetStateForNewScout() {
-        val currentEvent = _state.value.event
         val currentEventCode = _state.value.eventCode
-        _state.value = PitScoutState(
-            event = currentEvent,
-            eventCode = currentEventCode
-        )
+        _state.value = PitScoutState(eventCode = currentEventCode)
     }
 
     // Full reset (clears everything including event)

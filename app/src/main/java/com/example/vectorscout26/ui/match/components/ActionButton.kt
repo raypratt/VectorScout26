@@ -14,39 +14,62 @@ fun ActionButton(
     label: String,
     count: Int,
     onClick: () -> Unit,
+    onDelete: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     containerColor: ButtonColors = ButtonDefaults.buttonColors()
 ) {
-    Button(
-        onClick = onClick,
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .height(84.dp),
-        colors = containerColor
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            colors = containerColor
         ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleMedium,
-                fontSize = 24.sp
-            )
-            if (count > 0) {
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = count.toString(),
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 24.sp
+                )
+                if (count > 0) {
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = count.toString(),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
+            }
+        }
+
+        if (onDelete != null && count > 0) {
+            Button(
+                onClick = onDelete,
+                modifier = Modifier
+                    .width(60.dp)
+                    .fillMaxHeight(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                )
+            ) {
+                Text("−", fontSize = 28.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

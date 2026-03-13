@@ -7,6 +7,7 @@ data class PitScoutData(
     val drivetrainType: String = "",
     val preferredRole: String = "",
     val preferredPath: String = "",
+    val hopperCapacity: Int = 0,
     val photoPath: String? = null,
     val autoPaths: List<AutoPath> = emptyList(),
     val timestamp: Long = System.currentTimeMillis()

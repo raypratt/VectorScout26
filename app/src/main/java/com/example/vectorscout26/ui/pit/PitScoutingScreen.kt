@@ -118,10 +118,7 @@ fun PitScoutingScreen(
                 events = events,
                 selectedEventCode = state.eventCode,
                 onEventSelected = { eventCode ->
-                    val selectedEvent = events.find { it.eventCode == eventCode }
-                    if (selectedEvent != null) {
-                        viewModel.updateEvent(selectedEvent.eventName, eventCode)
-                    }
+                    viewModel.updateEvent(eventCode)
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -183,6 +180,16 @@ fun PitScoutingScreen(
                     )
                 }
             }
+
+            // Hopper Capacity
+            OutlinedTextField(
+                value = state.hopperCapacity,
+                onValueChange = { viewModel.updateHopperCapacity(it) },
+                label = { Text("Hopper Capacity (# of game pieces)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
             // Robot Photo
             Text("Robot Photo", style = MaterialTheme.typography.titleMedium)

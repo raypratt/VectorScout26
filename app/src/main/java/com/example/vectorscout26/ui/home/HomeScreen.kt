@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun HomeScreen(
     onMatchScoutingClick: () -> Unit,
-    onPitScoutingClick: () -> Unit
+    onPitScoutingClick: () -> Unit,
+    onFoulScoutingClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -38,7 +39,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "FRC 2026 Rebuild",
+                text = "Chelsea Build v 1.1",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -75,6 +76,24 @@ fun HomeScreen(
             ) {
                 Text(
                     text = "Pit Scouting",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 33.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = onFoulScoutingClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(108.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
+            ) {
+                Text(
+                    text = "Foul Scouting",
                     style = MaterialTheme.typography.titleLarge,
                     fontSize = 33.sp
                 )

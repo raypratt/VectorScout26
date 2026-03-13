@@ -23,7 +23,7 @@ object Constants {
     )
 
     // Ferry options
-    val FERRY_TYPES = listOf("Shoot", "Dump")
+    val FERRY_TYPES = listOf("Shoot", "Dump", "Bulldoze")
 
     // Climb options
     val AUTON_CLIMB_RESULTS = listOf("L1", "Fail")
@@ -36,7 +36,7 @@ object Constants {
     val FOUL_TYPES = listOf("Major", "Minor")
 
     // Damaged options
-    val DAMAGED_COMPONENTS = listOf("Drivetrain", "Intake", "Shooter", "Climber")
+    val DAMAGED_COMPONENTS = listOf("Drivetrain", "Intake", "Shooter", "Climber", "Unknown/Other")
 
     // Pit Scouting - Drivetrain types
     val DRIVETRAIN_TYPES = listOf("Swerve", "Tank", "Mecanum", "Other")

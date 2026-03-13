@@ -25,6 +25,9 @@ import com.example.vectorscout26.ui.match.action.ActionDetailScreen
 import com.example.vectorscout26.ui.pit.PitScoutingScreen
 import com.example.vectorscout26.ui.pit.PitScoutingViewModel
 import com.example.vectorscout26.ui.pit.PitScoutingViewModelFactory
+import com.example.vectorscout26.ui.foul.FoulQRCodeScreen
+import com.example.vectorscout26.ui.foul.FoulScoutingScreen
+import com.example.vectorscout26.ui.foul.FoulScoutingViewModel
 import com.example.vectorscout26.ui.qrcode.QRCodeScreen
 import com.example.vectorscout26.ui.qrcode.PitQRCodeScreen
 
@@ -48,6 +51,9 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onPitScoutingClick = {
                     navController.navigate("pit_flow")
+                },
+                onFoulScoutingClick = {
+                    navController.navigate("foul_flow")
                 }
             )
         }
@@ -194,6 +200,48 @@ fun NavGraph(navController: NavHostController) {
                     onNewPitScout = {
                         viewModel.resetStateForNewScout()
                         navController.popBackStack(Screen.PitScouting.route, inclusive = false)
+                    },
+                    onHome = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+        }
+
+        // Nested navigation for foul scouting flow
+        navigation(
+            startDestination = Screen.FoulScouting.route,
+            route = "foul_flow"
+        ) {
+            composable(Screen.FoulScouting.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("foul_flow")
+                }
+                val viewModel: FoulScoutingViewModel = viewModel(parentEntry)
+
+                FoulScoutingScreen(
+                    viewModel = viewModel,
+                    onGenerateQR = {
+                        navController.navigate(Screen.FoulQRCode.route)
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Screen.FoulQRCode.route) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("foul_flow")
+                }
+                val viewModel: FoulScoutingViewModel = viewModel(parentEntry)
+
+                FoulQRCodeScreen(
+                    viewModel = viewModel,
+                    onNewMatch = {
+                        navController.popBackStack(Screen.FoulScouting.route, inclusive = false)
                     },
                     onHome = {
                         navController.navigate(Screen.Home.route) {

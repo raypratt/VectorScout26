@@ -77,3 +77,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+
+// AGP 8.x removed the testClasses task; register a stub for compatibility
+tasks.register("testClasses")

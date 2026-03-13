@@ -12,6 +12,7 @@ import com.example.vectorscout26.ui.theme.ActionPurple
 fun EndGameSection(
     climbCount: Int,
     onActionClick: (ActionType) -> Unit,
+    onDeleteAction: (ActionType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -37,6 +38,7 @@ fun EndGameSection(
                 label = "Climb",
                 count = climbCount,
                 onClick = { onActionClick(ActionType.EndGameClimb) },
+                onDelete = { onDeleteAction(ActionType.EndGameClimb) },
                 containerColor = ButtonDefaults.buttonColors(containerColor = ActionPurple)
             )
         }

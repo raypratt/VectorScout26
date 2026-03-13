@@ -3,15 +3,10 @@ package com.example.vectorscout26.ui.qrcode
 import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.media.MediaScannerConnection
 import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,11 +29,8 @@ import com.example.vectorscout26.data.model.MatchScoutData
 import com.example.vectorscout26.data.repository.ScoutRepository
 import com.example.vectorscout26.utils.JsonSerializer
 import com.example.vectorscout26.utils.QRCodeGenerator
-import kotlinx.coroutines.Dispatchers
+import com.example.vectorscout26.utils.saveQRCodeImageToDownloads
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
 
 @Composable
 fun QRCodeScreen(
@@ -66,7 +58,7 @@ fun QRCodeScreen(
                 val matchLabel = "${data.event}_${data.matchNumber}_${data.robotDesignation}_${data.teamNumber}"
                 val filename = "$matchLabel.png"
 
-                val savedPath = saveQRCodeImage(context, jsonContent, matchLabel, filename, isGranted)
+                val savedPath = saveQRCodeImageToDownloads(context, jsonContent, matchLabel, filename)
                 if (savedPath != null) {
                     Toast.makeText(context, "Saved to Downloads: $filename", Toast.LENGTH_LONG).show()
                 } else {
@@ -245,7 +237,7 @@ fun QRCodeScreen(
                                 val matchLabel = "${data.event}_${data.matchNumber}_${data.robotDesignation}_${data.teamNumber}"
                                 val filename = "$matchLabel.png"
 
-                                val savedPath = saveQRCodeImage(context, jsonContent, matchLabel, filename, hasStoragePermission())
+                                val savedPath = saveQRCodeImageToDownloads(context, jsonContent, matchLabel, filename)
                                 if (savedPath != null) {
                                     Toast.makeText(context, "Saved to Downloads: $filename", Toast.LENGTH_LONG).show()
                                 } else {
@@ -278,91 +270,5 @@ fun QRCodeScreen(
                 Text("Back to Home", fontSize = 24.sp)
             }
         }
-    }
-}
-
-/**
- * Save QR code with label as PNG image.
- * Returns the saved file path on success, null on failure.
- */
-private suspend fun saveQRCodeImage(
-    context: android.content.Context,
-    jsonContent: String,
-    label: String,
-    filename: String,
-    hasStoragePermission: Boolean = false
-): String? = withContext(Dispatchers.IO) {
-    try {
-        Log.d("QRCodeScreen", "Attempting to save QR code: $filename")
-        Log.d("QRCodeScreen", "Android SDK version: ${Build.VERSION.SDK_INT}")
-
-        // Generate QR with label
-        val bitmap = QRCodeGenerator.generateQRCodeWithLabel(jsonContent, label, 800)
-        if (bitmap == null) {
-            Log.e("QRCodeScreen", "Failed to generate QR bitmap")
-            return@withContext null
-        }
-
-        // First save to internal storage (guaranteed to work)
-        val qrDir = File(context.filesDir, "qrcodes")
-        if (!qrDir.exists()) {
-            qrDir.mkdirs()
-        }
-        val internalFile = File(qrDir, filename)
-        FileOutputStream(internalFile).use { outputStream ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        }
-        Log.d("QRCodeScreen", "Saved to internal: ${internalFile.absolutePath}, size: ${internalFile.length()}")
-
-        // Now try to save to a user-visible location
-        var visiblePath: String? = null
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Android 10+: Use MediaStore Downloads (no permission needed)
-                val values = ContentValues().apply {
-                    put(MediaStore.Downloads.DISPLAY_NAME, filename)
-                    put(MediaStore.Downloads.MIME_TYPE, "image/png")
-                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                }
-                val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-                if (uri != null) {
-                    context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                    }
-                    visiblePath = "Downloads/$filename"
-                    Log.d("QRCodeScreen", "Saved to Downloads via MediaStore: $uri")
-                }
-            } else if (hasStoragePermission) {
-                // Android 9 and below: Save to public Downloads folder directly (needs permission)
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                if (!downloadsDir.exists()) {
-                    downloadsDir.mkdirs()
-                }
-                val downloadFile = File(downloadsDir, filename)
-                FileOutputStream(downloadFile).use { outputStream ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                }
-
-                // Notify media scanner
-                MediaScannerConnection.scanFile(
-                    context,
-                    arrayOf(downloadFile.absolutePath),
-                    arrayOf("image/png"),
-                    null
-                )
-
-                visiblePath = downloadFile.absolutePath
-                Log.d("QRCodeScreen", "Saved to Downloads: ${downloadFile.absolutePath}")
-            } else {
-                Log.d("QRCodeScreen", "No storage permission, skipping visible location save")
-            }
-        } catch (e: Exception) {
-            Log.w("QRCodeScreen", "Could not save to visible location: ${e.message}")
-        }
-
-        visiblePath ?: internalFile.absolutePath
-    } catch (e: Exception) {
-        Log.e("QRCodeScreen", "Error saving QR code", e)
-        null
     }
 }
